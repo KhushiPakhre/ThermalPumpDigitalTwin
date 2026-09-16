@@ -1,4 +1,4 @@
-﻿namespace ThermalPumpDT.Anomaly
+namespace ThermalPumpDT.Core
 {
     public enum FaultType
     {

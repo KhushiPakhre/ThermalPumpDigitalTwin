@@ -2,7 +2,6 @@
 using UnityEngine.UI;
 using TMPro;
 using ThermalPumpDT.Core;
-using ThermalPumpDT.Anomaly;
 
 namespace ThermalPumpDT.UI
 {

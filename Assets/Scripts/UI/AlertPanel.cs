@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
-using ThermalPumpDT.Anomaly;
+using ThermalPumpDT.Core;
 
 namespace ThermalPumpDT.UI
 {
@@ -57,6 +57,7 @@ namespace ThermalPumpDT.UI
         {
             if (HistoryContainer == null || AlertHistoryItemPrefab == null) return;
             var go = Instantiate(AlertHistoryItemPrefab, HistoryContainer);
+            go.SetActive(true);
 
             var label = go.GetComponentInChildren<TextMeshProUGUI>();
             if (label) label.text = $"[{evt.Severity}] {evt.Fault}: {evt.Description}";

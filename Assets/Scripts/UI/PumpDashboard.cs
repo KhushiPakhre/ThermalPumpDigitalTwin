@@ -3,7 +3,6 @@ using UnityEngine;
 using UnityEngine.UI;
 using TMPro;
 using ThermalPumpDT.Core;
-using ThermalPumpDT.Anomaly;
 
 namespace ThermalPumpDT.UI
 {
@@ -97,6 +96,7 @@ namespace ThermalPumpDT.UI
             foreach (var twin in TwinManager.Instance.AllTwins)
             {
                 var go  = Instantiate(PumpListItemPrefab, PumpListContainer);
+                go.SetActive(true);
                 var btn = go.GetComponent<Button>();
                 var lbl = go.GetComponentInChildren<TextMeshProUGUI>();
                 if (lbl) lbl.text = twin.PumpName;

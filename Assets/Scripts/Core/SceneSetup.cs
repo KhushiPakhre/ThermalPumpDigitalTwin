@@ -3,26 +3,25 @@ using UnityEngine.UI;
 using TMPro;
 using ThermalPumpDT.Core;
 using ThermalPumpDT.Anomaly;
+using ThermalPumpDT.UI;
 using ThermalPumpDT.Visualization;
 
 namespace ThermalPumpDT
 {
     /// <summary>
-    /// Editor script helper: call SetupMainPlantScene() from a custom menu
-    /// to programmatically wire up the scene GameObjects and components.
+    /// Programmatically wires up the MainPlant scene at runtime:
+    /// TwinManager, anomaly systems, 3D plant layout, and full HUD.
     /// </summary>
     public class SceneSetup : MonoBehaviour
     {
         private void Start()
         {
-            // Ensure TwinManager exists
             if (TwinManager.Instance == null)
             {
                 var tm = new GameObject("TwinManager").AddComponent<TwinManager>();
                 DontDestroyOnLoad(tm.gameObject);
             }
 
-            // Ensure systems exist in this scene
             if (!FindObjectOfType<AnomalyDetector>())
                 new GameObject("AnomalyDetector").AddComponent<AnomalyDetector>();
             if (!FindObjectOfType<MaintenanceScheduler>())
@@ -32,28 +31,24 @@ namespace ThermalPumpDT
 
             BuildPlantLayout();
             SetupLighting();
+            DashboardUIBuilder.Build();
         }
 
         private void BuildPlantLayout()
         {
-            // Floor slab
             var floor = GameObject.CreatePrimitive(PrimitiveType.Cube);
             floor.name = "FloorSlab";
             floor.transform.position = Vector3.zero;
             floor.transform.localScale = new Vector3(20f, 0.2f, 14f);
-            var floorMat = new Material(Shader.Find("Standard")) { color = new Color(0.25f, 0.25f, 0.28f) };
-            floor.GetComponent<Renderer>().material = floorMat;
+            floor.GetComponent<Renderer>().material = MaterialHelper.CreateLitMaterial(new Color(0.25f, 0.25f, 0.28f));
 
-            // Pump pedestals and visual models
             SpawnPump("BFP-01", new Vector3(-4f, 0.1f, -2f));
             SpawnPump("BFP-02", new Vector3( 0f, 0.1f, -2f));
             SpawnPump("CEP-01", new Vector3( 4f, 0.1f,  2f));
 
-            // Pipe headers (decorative)
             AddPipeHeader(new Vector3(-4f, 1.5f, -4f), new Vector3(8f, 0.25f, 0.25f));
             AddPipeHeader(new Vector3(-4f, 1.5f,  0f), new Vector3(8f, 0.25f, 0.25f));
 
-            // Walls
             AddWall(new Vector3(-10f, 3f, 0f), new Vector3(0.3f, 6f, 14f));
             AddWall(new Vector3( 10f, 3f, 0f), new Vector3(0.3f, 6f, 14f));
         }
@@ -66,14 +61,11 @@ namespace ThermalPumpDT
             var visual = go.AddComponent<PumpVisual3D>();
             visual.PumpId = pumpId;
 
-            // Clickable collider
             var col = go.AddComponent<BoxCollider>();
             col.size   = new Vector3(2f, 1.8f, 1.5f);
             col.center = new Vector3(0f, 0.9f, 0f);
 
             go.AddComponent<PumpClickHandler>();
-
-            // Floating label above pump
             CreateWorldSpaceLabel(go.transform, pumpId, new Vector3(0, 2.2f, 0));
         }
 
@@ -106,7 +98,6 @@ namespace ThermalPumpDT
             tmp.color     = Color.white;
             lbl.GetComponent<RectTransform>().sizeDelta = new Vector2(200, 50);
 
-            // Billboard - make label always face camera
             canvas.AddComponent<BillboardLabel>();
         }
 
@@ -118,7 +109,7 @@ namespace ThermalPumpDT
             p.transform.localScale = scale;
             p.transform.rotation   = Quaternion.Euler(0, 0, 90);
             p.GetComponent<Renderer>().material =
-                new Material(Shader.Find("Standard")) { color = new Color(0.4f, 0.45f, 0.5f) };
+                MaterialHelper.CreateLitMaterial(new Color(0.4f, 0.45f, 0.5f));
         }
 
         private void AddWall(Vector3 pos, Vector3 scale)
@@ -128,12 +119,13 @@ namespace ThermalPumpDT
             w.transform.position   = pos;
             w.transform.localScale = scale;
             w.GetComponent<Renderer>().material =
-                new Material(Shader.Find("Standard")) { color = new Color(0.7f, 0.7f, 0.72f) };
+                MaterialHelper.CreateLitMaterial(new Color(0.7f, 0.7f, 0.72f));
         }
 
         private void SetupLighting()
         {
-            // Directional light
+            if (FindObjectOfType<Light>() != null) return;
+
             var dirLightGO = new GameObject("DirectionalLight");
             var dirLight   = dirLightGO.AddComponent<Light>();
             dirLight.type      = LightType.Directional;
@@ -141,15 +133,13 @@ namespace ThermalPumpDT
             dirLight.color     = new Color(1f, 0.95f, 0.85f);
             dirLightGO.transform.rotation = Quaternion.Euler(50f, -30f, 0);
 
-            // Ambient fill
-            RenderSettings.ambientMode      = UnityEngine.Rendering.AmbientMode.Trilight;
-            RenderSettings.ambientSkyColor  = new Color(0.4f, 0.5f, 0.7f);
-            RenderSettings.ambientEquatorColor = new Color(0.35f, 0.35f, 0.4f);
-            RenderSettings.ambientGroundColor  = new Color(0.2f, 0.2f, 0.25f);
+            RenderSettings.ambientMode           = UnityEngine.Rendering.AmbientMode.Trilight;
+            RenderSettings.ambientSkyColor       = new Color(0.4f, 0.5f, 0.7f);
+            RenderSettings.ambientEquatorColor   = new Color(0.35f, 0.35f, 0.4f);
+            RenderSettings.ambientGroundColor    = new Color(0.2f, 0.2f, 0.25f);
         }
     }
 
-    /// <summary>Makes a world-space canvas always face the main camera.</summary>
     public class BillboardLabel : MonoBehaviour
     {
         private void LateUpdate()
@@ -160,7 +150,6 @@ namespace ThermalPumpDT
         }
     }
 
-    /// <summary>Handles mouse click on a pump model to navigate to PumpDetail scene.</summary>
     public class PumpClickHandler : MonoBehaviour
     {
         private PumpVisual3D _visual;

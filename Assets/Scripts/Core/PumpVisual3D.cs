@@ -97,8 +97,8 @@ namespace ThermalPumpDT.Visualization
 
         private void BuildModel()
         {
-            _bodyMat = new Material(Shader.Find("Standard")) { color = ColorOffline };
-            var pipeMat = new Material(Shader.Find("Standard")) { color = new Color(0.4f, 0.5f, 0.6f) };
+            _bodyMat = MaterialHelper.CreateLitMaterial(ColorOffline);
+            var pipeMat = MaterialHelper.CreateLitMaterial(new Color(0.4f, 0.5f, 0.6f));
 
             // Pump volute (main housing)
             var volute = CreatePart("Volute", PrimitiveType.Cylinder, new Vector3(0, 0.2f, 0),
@@ -150,9 +150,10 @@ namespace ThermalPumpDT.Visualization
             sphere.transform.SetParent(lightGO.transform);
             sphere.transform.localPosition = Vector3.zero;
             sphere.transform.localScale    = Vector3.one * 0.12f;
-            var lightMat = new Material(Shader.Find("Standard"));
+            var lightMat = MaterialHelper.CreateLitMaterial(ColorOffline);
             lightMat.EnableKeyword("_EMISSION");
-            lightMat.SetColor("_EmissionColor", ColorOffline * 2f);
+            if (lightMat.HasProperty("_EmissionColor"))
+                lightMat.SetColor("_EmissionColor", ColorOffline * 2f);
             sphere.GetComponent<Renderer>().material = lightMat;
             _statusLightRenderer = sphere.GetComponent<Renderer>();
             _statusLight = lightGO.transform;

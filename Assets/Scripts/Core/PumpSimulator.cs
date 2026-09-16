@@ -1,6 +1,5 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
-using ThermalPumpDT.Anomaly;
 
 namespace ThermalPumpDT.Core
 {

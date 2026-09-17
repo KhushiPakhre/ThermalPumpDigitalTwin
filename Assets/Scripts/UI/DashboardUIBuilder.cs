@@ -65,9 +65,9 @@ namespace ThermalPumpDT.UI
 
             dashboard.HealthRingImage = CreateFilledImage(healthGO.transform, "HealthRing",
                 new Vector2(0, 0), new Vector2(0, 1), new Vector2(40, 0), new Vector2(70, 70));
-            dashboard.HealthLabel   = CreateLabel(healthGO, "HealthLabel",   new Vector2(90, -10), 20, FontStyles.Bold);
-            dashboard.RULLabel      = CreateLabel(healthGO, "RULLabel",      new Vector2(90, -35), 16, FontStyles.Normal);
-            dashboard.RunHoursLabel = CreateLabel(healthGO, "RunHoursLabel", new Vector2(90, -58), 16, FontStyles.Normal);
+           dashboard.HealthLabel   = CreateLabel(healthGO.transform, "HealthLabel",   new Vector2(90, -10), 20, FontStyles.Bold);
+           dashboard.RULLabel      = CreateLabel(healthGO.transform, "RULLabel",      new Vector2(90, -35), 16, FontStyles.Normal);
+           dashboard.RunHoursLabel = CreateLabel(healthGO.transform, "RunHoursLabel", new Vector2(90, -58), 16, FontStyles.Normal);
 
             // Bottom – time series graph
             var graphPanel = CreatePanel(canvasGO.transform, "GraphPanel",
